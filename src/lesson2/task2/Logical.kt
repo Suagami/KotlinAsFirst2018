@@ -4,6 +4,8 @@ package lesson2.task2
 import lesson1.task1.sqr
 import kotlin.math.abs
 import kotlin.math.sqrt
+import kotlin.math.max
+import kotlin.math.min
 
 /**
  * Пример
@@ -41,13 +43,11 @@ fun queenThreatens(x1: Int, y1: Int, x2: Int, y2: Int): Boolean =
  * Дан номер месяца (от 1 до 12 включительно) и год (положительный).
  * Вернуть число дней в этом месяце этого года по григорианскому календарю.
  */
-fun daysInMonth(month: Int, year: Int): Int {
-    return when {
-        month == 4 || month == 6 || month == 9 || month == 11 -> 30
-        month == 2 && (year % 4 != 0 || (year % 100 == 0 && year % 400 != 0)) -> 28
-        month == 2 && year % 4 == 0 -> 29
-        else -> 31
-    }
+fun daysInMonth(month: Int, year: Int): Int = when {
+    month == 4 || month == 6 || month == 9 || month == 11 -> 30
+    month == 2 && (year % 4 != 0 || (year % 100 == 0 && year % 400 != 0)) -> 28
+    month == 2 && year % 4 == 0 -> 29
+    else -> 3
 }
 /**
  * Средняя
@@ -72,44 +72,20 @@ fun circleInside(x1: Double, y1: Double, r1: Double,
  * Вернуть true, если кирпич пройдёт
  */
 fun brickPasses(a: Int, b: Int, c: Int, r: Int, s: Int): Boolean {
-    var maxSide = 0
-    var minSide = 0
     var minBrickSide = 0
     var middleBrickSide = 0
-    if (r > s) {
-        maxSide = r
-        minSide = s
-    } else {
-        maxSide = s
-        minSide = r
+    if (a >= b && a >= c) {
+        minBrickSide = min(b, c)
+        middleBrickSide = max(b, c)
     }
-    if (a > b && a > c) {
-        if (b > c) {
-            middleBrickSide = b
-            minBrickSide = c
-        } else {
-            middleBrickSide = c
-            minBrickSide = b
-        }
+    if (b >= a && b >= c) {
+        minBrickSide = min(a, c)
+        middleBrickSide = max(a, c)
     }
-    if (b > a && b > c) {
-        if (a > c) {
-            middleBrickSide = a
-            minBrickSide = c
-        } else {
-            middleBrickSide = c
-            minBrickSide = a
-        }
+    if (c >= b && c >= a) {
+        minBrickSide = min(a, b)
+        middleBrickSide = max(a, b)
     }
-    if (c > b && c > a) {
-        if (b > a) {
-            middleBrickSide = b
-            minBrickSide = a
-        } else {
-            middleBrickSide = a
-            minBrickSide = b
-        }
-    }
-    if (minBrickSide > minSide || middleBrickSide > maxSide) return false
+    if (minBrickSide > min(r, s) || middleBrickSide > max(r, s)) return false
     return true
 }
