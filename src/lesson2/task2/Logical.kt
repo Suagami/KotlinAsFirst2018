@@ -47,7 +47,7 @@ fun daysInMonth(month: Int, year: Int): Int = when {
     month == 4 || month == 6 || month == 9 || month == 11 -> 30
     month == 2 && (year % 4 != 0 || (year % 100 == 0 && year % 400 != 0)) -> 28
     month == 2 && year % 4 == 0 -> 29
-    else -> 3
+    else -> 31
 }
 /**
  * Средняя
