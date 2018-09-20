@@ -79,7 +79,7 @@ fun digitNumber(n: Int): Int {
     do {
         count++
         number /= 10
-    } while (number > 0)
+    } while (abs(number) > 0)
     return count
 }
 /**
@@ -155,6 +155,7 @@ fun maxDivisor(n: Int): Int {
  * Например, 25 и 49 взаимно простые, а 6 и 8 -- нет.
  */
 fun isCoPrime(m: Int, n: Int): Boolean {
+    if (m == n) return false
     if (isPrime(max(m, n))) return true
     if (isPrime(min(m, n)) && max(m, n) % min(m, n) != 0) return true
     var a = m
