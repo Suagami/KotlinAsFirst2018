@@ -156,7 +156,7 @@ fun maxDivisor(n: Int): Int {
  */
 fun isCoPrime(m: Int, n: Int): Boolean {
     if (m == n) return false
-    if (isPrime(max(m, n))) return true
+    if (isPrime(max(m, n)) || m == 1 || n == 1) return true
     if (isPrime(min(m, n)) && max(m, n) % min(m, n) != 0) return true
     var a = m
     var b = n
