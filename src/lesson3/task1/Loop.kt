@@ -89,12 +89,19 @@ fun digitNumber(n: Int): Int {
  * Ряд Фибоначчи определён следующим образом: fib(1) = 1, fib(2) = 1, fib(n+2) = fib(n) + fib(n+1)
  */
 fun fib(n: Int): Int {
-    return when (n) {
-        1 -> 1
-        2 -> 1
-        else -> fib(n - 1) + fib(n - 2)
+    if (n == 1 || n == 2) return 1
+    var x1 = 1
+    var x2 = 1
+    var temp: Int
+    for (i in 3..n) {
+        temp = x2
+        x2 = x1 + x2
+        x1 = temp
     }
+    return x2
 }
+
+fun main(args: Array<String>) = print(isCoPrime(1, 1))
 
 /**
  * Простая
@@ -155,8 +162,9 @@ fun maxDivisor(n: Int): Int {
  * Например, 25 и 49 взаимно простые, а 6 и 8 -- нет.
  */
 fun isCoPrime(m: Int, n: Int): Boolean {
+    if (m == 1 || n == 1) return true
     if (m == n) return false
-    if (isPrime(max(m, n)) || m == 1 || n == 1) return true
+    if (isPrime(max(m, n))) return true
     if (isPrime(min(m, n)) && max(m, n) % min(m, n) != 0) return true
     var a = m
     var b = n
