@@ -206,17 +206,13 @@ fun collatzSteps(x: Int): Int {
 fun sin(x: Double, eps: Double): Double {
     val valX = x % (2 * PI)
     var i = 0
-    var part1 = 1
-    var part2 = 1.0
-    var part3 = valX
+    var term = valX
     var sinX = valX
     do {
         i++
-        part1 *= -1
-        part2 *= 2 * i * (2 * i + 1)
-        part3 *= valX * valX
-        sinX += part1 * part3 / part2
-    } while (abs(part1 * part3 / part2) >= eps)
+        term *= -1 * valX * valX / (2 * i * (2 * i + 1))
+        sinX += term
+    } while (abs(term) >= eps)
     return sinX
 }
 
@@ -230,17 +226,13 @@ fun sin(x: Double, eps: Double): Double {
 fun cos(x: Double, eps: Double): Double {
     val valX = x % (2 * PI)
     var i = 0
-    var part1 = 1
-    var part2 = 1.0
-    var part3 = 1.0
+    var term = 1.0
     var cosX = 1.0
     do {
         i++
-        part1 *= -1
-        part2 *= (2 * i - 1) * (2 * i)
-        part3 *= valX * valX
-        cosX += part1 * part3 / part2
-    } while (abs(part1 * part3 / part2) >= eps)
+        term *= -1 * valX * valX / ((2 * i - 1) * 2 * i)
+        cosX += term
+    } while (abs(term) >= eps)
     return cosX
 }
 
