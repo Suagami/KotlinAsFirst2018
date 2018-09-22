@@ -75,11 +75,11 @@ fun digitCountInNumber(n: Int, m: Int): Int =
  */
 fun digitNumber(n: Int): Int {
     var count = 0
-    var number = n
+    var number = abs(n)
     do {
         count++
         number /= 10
-    } while (abs(number) > 0)
+    } while (number > 0)
     return count
 }
 /**
@@ -95,13 +95,12 @@ fun fib(n: Int): Int {
     var temp: Int
     for (i in 3..n) {
         temp = x2
-        x2 = x1 + x2
+        x2 += x1
         x1 = temp
     }
     return x2
 }
 
-fun main(args: Array<String>) = print(isCoPrime(1, 1))
 
 /**
  * Простая
@@ -110,7 +109,6 @@ fun main(args: Array<String>) = print(isCoPrime(1, 1))
  * минимальное число k, которое делится и на m и на n без остатка
  */
 fun lcm(m: Int, n: Int): Int {
-    if (max(m, n) % min(m, n) == 0) return max(m, n)
     var a = m
     var b = n
     while (a != 0 && b != 0) {  //нахождение наибольшего общего делителя (алгоритм Евклида)
@@ -126,8 +124,7 @@ fun lcm(m: Int, n: Int): Int {
  * Для заданного числа n > 1 найти минимальный делитель, превышающий 1
  */
 fun minDivisor(n: Int): Int {
-    if (isPrime(n)) return n
-    var result = 0
+    var result = n
     for (i in 2..sqrt(n.toDouble()).toInt()) {
         if (n % i == 0) {
             result = i
@@ -142,17 +139,7 @@ fun minDivisor(n: Int): Int {
  *
  * Для заданного числа n > 1 найти максимальный делитель, меньший n
  */
-fun maxDivisor(n: Int): Int {
-    if (isPrime(n)) return 1
-    var result = 0
-    for (i in n - 1 downTo sqrt(n.toDouble()).toInt()) {
-        if (n % i == 0) {
-            result = i
-            break
-        }
-    }
-    return result
-}
+fun maxDivisor(n: Int): Int = n / minDivisor(n)
 
 /**
  * Простая
@@ -162,10 +149,6 @@ fun maxDivisor(n: Int): Int {
  * Например, 25 и 49 взаимно простые, а 6 и 8 -- нет.
  */
 fun isCoPrime(m: Int, n: Int): Boolean {
-    if (m == 1 || n == 1) return true
-    if (m == n) return false
-    if (isPrime(max(m, n))) return true
-    if (isPrime(min(m, n)) && max(m, n) % min(m, n) != 0) return true
     var a = m
     var b = n
     while (a != 0 && b != 0) {
@@ -222,15 +205,19 @@ fun collatzSteps(x: Int): Int {
  */
 fun sin(x: Double, eps: Double): Double {
     val valX = x % (2 * PI)
-    var i = 1
-    var term: Double
-    var sin = valX
+    var i = 0
+    var part1 = 1
+    var part2 = 1.0
+    var part3 = valX
+    var sinX = valX
     do {
         i++
-        term = (-1.0).pow(i + 1) / factorial(2 * i - 1) * valX.pow(2 * i - 1)
-        sin += term
-    } while (abs(term) >= eps)
-    return sin
+        part1 *= -1
+        part2 *= 2 * i * (2 * i + 1)
+        part3 *= valX * valX
+        sinX += part1 * part3 / part2
+    } while (abs(part1 * part3 / part2) >= eps)
+    return sinX
 }
 
 /**
@@ -243,14 +230,18 @@ fun sin(x: Double, eps: Double): Double {
 fun cos(x: Double, eps: Double): Double {
     val valX = x % (2 * PI)
     var i = 0
-    var term: Double
-    var cos = 1.0
+    var part1 = 1
+    var part2 = 1.0
+    var part3 = 1.0
+    var cosX = 1.0
     do {
         i++
-        term = (-1.0).pow(i) / factorial(2 * i) * valX.pow(2 * i)
-        cos += term
-    } while (abs(term) >= eps)
-    return cos
+        part1 *= -1
+        part2 *= (2 * i - 1) * (2 * i)
+        part3 *= valX * valX
+        cosX += part1 * part3 / part2
+    } while (abs(part1 * part3 / part2) >= eps)
+    return cosX
 }
 
 /**
@@ -262,14 +253,10 @@ fun cos(x: Double, eps: Double): Double {
  */
 fun revert(n: Int): Int {
     var varN = n
-    var count = 0
     var result = 0
     while (varN != 0) {
+        result = result * 10 + varN % 10
         varN /= 10
-        count++
-    }
-    for (i in 1..count) {
-        result += n / 10.0.pow(i - 1).toInt() % 10 * 10.0.pow(count - i).toInt()
     }
     return result
 }
