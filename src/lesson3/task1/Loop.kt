@@ -262,7 +262,7 @@ fun revert(n: Int): Int {
  *
  * Использовать операции со строками в этой задаче запрещается.
  */
-fun isPalindrome(n: Int): Boolean = TODO()
+fun isPalindrome(n: Int): Boolean = revert(n) == n
 
 /**
  * Средняя
@@ -272,7 +272,20 @@ fun isPalindrome(n: Int): Boolean = TODO()
  *
  * Использовать операции со строками в этой задаче запрещается.
  */
-fun hasDifferentDigits(n: Int): Boolean = TODO()
+fun hasDifferentDigits(n: Int): Boolean {
+    var varN = n
+    val lastDigit = n % 10
+    var result = false
+    while (varN != 0) {
+        if (varN % 10 == lastDigit) {
+            varN /= 10
+        } else {
+            result = true
+            break
+        }
+    }
+    return result
+}
 
 /**
  * Сложная
@@ -283,7 +296,25 @@ fun hasDifferentDigits(n: Int): Boolean = TODO()
  *
  * Использовать операции со строками в этой задаче запрещается.
  */
-fun squareSequenceDigit(n: Int): Int = TODO()
+fun squareSequenceDigit(n: Int): Int {
+    var count = 0 //количество цифр от начала до текущего момента
+    var i = 1
+    var tempDN = 0 // количество цифр в квадрате числа i
+    var result = -1
+    var tempSQR = 0
+    while (count != n) {
+        tempSQR = i * i
+        tempDN = digitNumber(tempSQR)
+        if (n - count <= tempDN) {
+            result = (tempSQR / 10.0.pow(tempDN - (n - count)) % 10).toInt()
+            break
+        } else {
+            count += tempDN
+            i++
+        }
+    }
+    return result
+}
 
 /**
  * Сложная
@@ -294,4 +325,22 @@ fun squareSequenceDigit(n: Int): Int = TODO()
  *
  * Использовать операции со строками в этой задаче запрещается.
  */
-fun fibSequenceDigit(n: Int): Int = TODO()
+fun fibSequenceDigit(n: Int): Int {
+    var count = 0 //количество цифр от начала до текущего момента
+    var i = 1
+    var tempDN = 0 // количество цифр в итом числе Фибоначчи
+    var result = -1
+    var tempFib = 0 // итое число Фибоначчи
+    while (count != n) {
+        tempFib = fib(i)
+        tempDN = digitNumber(tempFib)
+        if (n - count <= tempDN) {
+            result = (tempFib / 10.0.pow(tempDN - (n - count)) % 10).toInt()
+            break
+        } else {
+            count += tempDN
+            i++
+        }
+    }
+    return result
+}
