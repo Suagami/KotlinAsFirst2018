@@ -310,7 +310,7 @@ fun decimalFromString(str: String, base: Int): Int {
             'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z')
     var maxDigit = (base.toDouble().pow((str.length - 1).toDouble())).toInt()
     for (char in str) {
-        if (char in letters) result += (char.toInt() - 'a'.toInt() + 10) * maxDigit else result += char.toInt() * maxDigit
+        if (char in letters) result += (char.toInt() - 'a'.toInt() + 10) * maxDigit else result += (char.toInt() - '0'.toInt()) * maxDigit
         maxDigit /= base
     }
     return result
