@@ -217,10 +217,12 @@ fun factorize(n: Int): List<Int> {
     var tempNumber = n
     val result = mutableListOf<Int>()
     var tempDivisor = minDivisor(n)
+    var temp: Int
     while (tempNumber != 1) {
         if (tempNumber % tempDivisor != 0) {
+            temp = tempDivisor
             tempDivisor = tempNumber
-            for (i in 2..sqrt(tempNumber.toDouble()).toInt()) {
+            for (i in temp..sqrt(tempNumber.toDouble()).toInt()) {
                 if (tempNumber % i == 0) {
                     tempDivisor = i
                     break
@@ -269,8 +271,8 @@ fun convert(n: Int, base: Int): List<Int> {
  * Например: n = 100, base = 4 -> 1210, n = 250, base = 14 -> 13c
  */
 fun convertToString(n: Int, base: Int): String {
-    if (base <= 10) return convert(n, base).joinToString(separator = "")
     val list = convert(n, base)
+    if (base <= 10) return list.joinToString(separator = "")
     return buildString {
         for (digit in list) {
             if (digit > 9) append((digit - 10 + 'a'.toInt()).toChar()) else append(digit)
@@ -307,8 +309,8 @@ fun decimal(digits: List<Int>, base: Int): Int {
 fun decimalFromString(str: String, base: Int): Int {
     val list = mutableListOf<Int>()
     for (char in str) {
-        if (char.toInt() in 'a'.toInt()..'z'.toInt()) list.add(char.toInt() - 'a'.toInt() + 10)
-        else list.add(char.toInt() - '0'.toInt())
+        if (char in 'a'..'z') list.add(char - 'a' + 10)
+        else list.add(char - '0')
     }
     return decimal(list, base)
 }
@@ -324,14 +326,15 @@ fun decimalFromString(str: String, base: Int): Int {
 fun roman(n: Int): String {
     var tempN = n
 
-    val numbers = listOf(1000 to "M", 900 to "CM", 500 to "D", 400 to "CD", 100 to "C", 90 to "XC", 50 to "L", 40 to "XL", 10 to "X",
+    val numbers = listOf(1000 to "M", 900 to "CM", 500 to "D", 400 to "CD",
+            100 to "C", 90 to "XC", 50 to "L", 40 to "XL", 10 to "X",
             9 to "IX", 5 to "V", 4 to "IV", 1 to "I")
     return buildString {
         while (tempN > 0) {
-            for (i in 0 until numbers.size) {
-                while (tempN >= (numbers[i].first)) {
-                    tempN -= numbers[i].first
-                    append(numbers[i].second)
+            for (pair in numbers) {
+                while (tempN >= (pair.first)) {
+                    tempN -= pair.first
+                    append(pair.second)
                 }
             }
         }
@@ -354,85 +357,72 @@ fun russian(n: Int): String {
         i++
         tempN = (tempN - tempN % 10) / 10
     }
-    var result = ""
     var count: Boolean
     var t = 0
     if (n >= 1000) t = 1
-    for (j in t downTo 0) {
-        count = true
-        result += when (listN[j * 3 + 2]) {
-            1 -> "сто "
-            2 -> "двести "
-            3 -> "триста "
-            4 -> "четыреста "
-            5 -> "пятьсот "
-            6 -> "шестьсот "
-            7 -> "семьсот "
-            8 -> "восемьсот "
-            9 -> "девятьсот "
-            else -> ""
-        }
-        when (listN[j * 3 + 1]) {
-            1 -> {
-                result += when (listN[3 * j]) {
-                    0 -> "десять "
-                    1 -> "одиннадцать "
-                    2 -> "двенадцать "
-                    3 -> "тринадцать "
-                    4 -> "четырнадцать "
-                    5 -> "пятнадцать "
-                    6 -> "шестнадцать "
-                    7 -> "семнадцать "
-                    8 -> "восемнадцать "
-                    else -> "девятнадцать "
+    val result = buildString {
+        for (j in t downTo 0) {
+            count = true
+            append(when (listN[j * 3 + 2]) {
+                1 -> "сто "
+                2 -> "двести "
+                3 -> "триста "
+                4 -> "четыреста "
+                5 -> "пятьсот "
+                6 -> "шестьсот "
+                7 -> "семьсот "
+                8 -> "восемьсот "
+                9 -> "девятьсот "
+                else -> ""
+            })
+            when (listN[j * 3 + 1]) {
+                1 -> {
+                    count = false
+                    append(when (listN[3 * j]) {
+                        0 -> "десять "
+                        1 -> "одиннадцать "
+                        2 -> "двенадцать "
+                        3 -> "тринадцать "
+                        4 -> "четырнадцать "
+                        5 -> "пятнадцать "
+                        6 -> "шестнадцать "
+                        7 -> "семнадцать "
+                        8 -> "восемнадцать "
+                        else -> "девятнадцать "
+                    })
                 }
-                count = false
+                2 -> append("двадцать ")
+                3 -> append("тридцать ")
+                4 -> append("сорок ")
+                5 -> append("пятьдесят ")
+                6 -> append("шестьдесят ")
+                7 -> append("семьдесят ")
+                8 -> append("восемьдесят ")
+                9 -> append("девяносто ")
+                else -> append("")
             }
-            2 -> result += "двадцать "
-            3 -> result += "тридцать "
-            4 -> result += "сорок "
-            5 -> result += "пятьдесят "
-            6 -> result += "шестьдесят "
-            7 -> result += "семьдесят "
-            8 -> result += "восемьдесят "
-            9 -> result += "девяносто "
-            else -> result += ""
+            if (count) {
+                when (listN[3 * j]) {
+                    1 -> append(if (j == 1) "одна тысяча " else "один")
+                    2 -> append(if (j == 1) "две тысячи " else "два")
+                    in 3..4 -> {
+                        if (listN[3 * j] == 3) append("три ") else append("четыре ")
+                        if (j == 1) append("тысячи ")
+                    }
+                    else -> {
+                        when (listN[3 * j]) {
+                            5 -> append("пять ")
+                            6 -> append("шесть ")
+                            7 -> append("семь ")
+                            8 -> append("восемь ")
+                            9 -> append("девять ")
+                            else -> append("")
+                        }
+                        if (j == 1) append("тысяч ")
+                    }
+                }
+            } else if (j == 1) append("тысяч ")
         }
-        if (count) {
-            when (listN[3 * j]) {
-                1 -> result += if (j == 1) "одна тысяча " else "один"
-                2 -> result += if (j == 1) "две тысячи " else "два"
-                3 -> {
-                    result += "три "
-                    if (j == 1) result += "тысячи "
-                }
-                4 -> {
-                    result += "четыре "
-                    if (j == 1) result += "тысячи "
-                }
-                5 -> {
-                    result += "пять "
-                    if (j == 1) result += "тысяч "
-                }
-                6 -> {
-                    result += "шесть "
-                    if (j == 1) result += "тысяч "
-                }
-                7 -> {
-                    result += "семь "
-                    if (j == 1) result += "тысяч "
-                }
-                8 -> {
-                    result += "восемь "
-                    if (j == 1) result += "тысяч "
-                }
-                9 -> {
-                    result += "девять "
-                    if (j == 1) result += "тысяч "
-                }
-                else -> if (j == 1) result += "тысяч "
-            }
-        } else if (j == 1) result += "тысяч "
     }
     return result.trim()
 }
