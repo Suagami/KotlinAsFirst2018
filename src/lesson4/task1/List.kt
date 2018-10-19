@@ -352,6 +352,7 @@ fun russian(n: Int): String {
     var tempN = n
     val listN = mutableListOf(0, 0, 0, 0, 0, 0)
     var i = 0
+    var count: Boolean
     while (tempN > 0) {
         listN[i] = (tempN % 10)
         i++
@@ -411,16 +412,23 @@ fun russian(n: Int): String {
     val thousands = listOf("тысяча ", "тысячи ", "тысяч ")
     val result = buildString {
         for (j in i downTo 0) {
+            count = true
             append(hundreds[listN[j * 3 + 2]])
-            if (listN[j * 3 + 1] == 1) append(specialTens[listN[3 * j]]) else {
+            if (listN[j * 3 + 1] == 1) {
+                append(specialTens[listN[3 * j]])
+                count = false
+            } else {
                 append(otherTens[listN[3 * j + 1]])
                 if (listN[3 * j] in 1..2) append(otherOnes[listN[3 * j]]!![j]) else append(ones[listN[3 * j]])
             }
-            if (j == 1) append(when (listN[3 * j]) {
-                1 -> thousands[0]
-                in 2..4 -> thousands[1]
-                else -> thousands[2]
-            })
+            if (j == 1) {
+                if (count) append(when (listN[3 * j]) {
+                    1 -> thousands[0]
+                    in 2..4 -> thousands[1]
+                    else -> thousands[2]
+                })
+                else append(thousands[2])
+            }
         }
     }
     return result.trim()
