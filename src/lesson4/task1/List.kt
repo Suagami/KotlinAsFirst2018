@@ -331,10 +331,10 @@ fun roman(n: Int): String {
             9 to "IX", 5 to "V", 4 to "IV", 1 to "I")
     return buildString {
         while (tempN > 0) {
-            for (pair in numbers) {
-                while (tempN >= (pair.first)) {
-                    tempN -= pair.first
-                    append(pair.second)
+            for ((arabNumber, romanNumber) in numbers) {
+                while (tempN >= (arabNumber)) {
+                    tempN -= arabNumber
+                    append(romanNumber)
                 }
             }
         }
@@ -357,71 +357,70 @@ fun russian(n: Int): String {
         i++
         tempN = (tempN - tempN % 10) / 10
     }
-    var count: Boolean
-    var t = 0
-    if (n >= 1000) t = 1
+    i = 0
+    if (n >= 1000) i = 1
+    val hundreds = mapOf(
+            1 to "сто ",
+            2 to "двести ",
+            3 to "триста ",
+            4 to "четыреста ",
+            5 to "пятьсот ",
+            6 to "шестьсот ",
+            7 to "семьсот ",
+            8 to "восемьсот ",
+            9 to "девятьсот ",
+            0 to ""
+    )
+    val specialTens = mapOf(
+            0 to "десять ",
+            1 to "одиннадцать ",
+            2 to "двенадцать ",
+            3 to "тринадцать ",
+            4 to "четырнадцать ",
+            5 to "пятнадцать ",
+            6 to "шестнадцать ",
+            7 to "семнадцать ",
+            8 to "восемнадцать ",
+            9 to "девятнадцать "
+    )
+    val otherTens = mapOf(
+            2 to "двадцать ",
+            3 to "тридцать ",
+            4 to "сорок ",
+            5 to "пятьдесят ",
+            6 to "шестьдесят ",
+            7 to "семьдесят ",
+            8 to "восемьдесят ",
+            9 to "девяносто ",
+            0 to ""
+    )
+    val ones = mapOf(
+            3 to "три ",
+            4 to "четыре ",
+            5 to "пять ",
+            6 to "шесть ",
+            7 to "семь ",
+            8 to "восемь ",
+            9 to "девять ",
+            0 to ""
+    )
+    val otherOnes = mapOf(
+            1 to listOf("один", "одна "),
+            2 to listOf("два", "две ")
+    )
+    val thousands = listOf("тысяча ", "тысячи ", "тысяч ")
     val result = buildString {
-        for (j in t downTo 0) {
-            count = true
-            append(when (listN[j * 3 + 2]) {
-                1 -> "сто "
-                2 -> "двести "
-                3 -> "триста "
-                4 -> "четыреста "
-                5 -> "пятьсот "
-                6 -> "шестьсот "
-                7 -> "семьсот "
-                8 -> "восемьсот "
-                9 -> "девятьсот "
-                else -> ""
-            })
-            when (listN[j * 3 + 1]) {
-                1 -> {
-                    count = false
-                    append(when (listN[3 * j]) {
-                        0 -> "десять "
-                        1 -> "одиннадцать "
-                        2 -> "двенадцать "
-                        3 -> "тринадцать "
-                        4 -> "четырнадцать "
-                        5 -> "пятнадцать "
-                        6 -> "шестнадцать "
-                        7 -> "семнадцать "
-                        8 -> "восемнадцать "
-                        else -> "девятнадцать "
-                    })
-                }
-                2 -> append("двадцать ")
-                3 -> append("тридцать ")
-                4 -> append("сорок ")
-                5 -> append("пятьдесят ")
-                6 -> append("шестьдесят ")
-                7 -> append("семьдесят ")
-                8 -> append("восемьдесят ")
-                9 -> append("девяносто ")
-                else -> append("")
+        for (j in i downTo 0) {
+            append(hundreds[listN[j * 3 + 2]])
+            if (listN[j * 3 + 1] == 1) append(specialTens[listN[3 * j]]) else {
+                append(otherTens[listN[3 * j + 1]])
+                if (listN[3 * j] in 1..2) append(otherOnes[listN[3 * j]]!![j]) else append(ones[listN[3 * j]])
             }
-            if (count) {
-                when (listN[3 * j]) {
-                    1 -> append(if (j == 1) "одна тысяча " else "один")
-                    2 -> append(if (j == 1) "две тысячи " else "два")
-                    in 3..4 -> {
-                        if (listN[3 * j] == 3) append("три ") else append("четыре ")
-                        if (j == 1) append("тысячи ")
-                    }
-                    else -> {
-                        when (listN[3 * j]) {
-                            5 -> append("пять ")
-                            6 -> append("шесть ")
-                            7 -> append("семь ")
-                            8 -> append("восемь ")
-                            9 -> append("девять ")
-                            else -> append("")
-                        }
-                        if (j == 1) append("тысяч ")
-                    }
-                }
-            } else if (j == 1) append("тысяч ")
+            if (j == 1) append(when (listN[3 * j]) {
+                1 -> thousands[0]
+                in 2..4 -> thousands[1]
+                else -> thousands[2]
+            })
         }
     }
     return result.trim()
