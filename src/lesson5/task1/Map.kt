@@ -283,7 +283,7 @@ fun subtractOf(a: MutableMap<String, String>, b: Map<String, String>): Unit {
 fun whoAreInBoth(a: List<String>, b: List<String>): List<String> {
     val res = mutableListOf<String>()
     for (peopleA in a)
-        if (peopleA in b) res.add(peopleA)
+        if (peopleA in b && peopleA !in res) res.add(peopleA)
     return res
 }
 
@@ -296,7 +296,14 @@ fun whoAreInBoth(a: List<String>, b: List<String>): List<String> {
  * Например:
  *   canBuildFrom(listOf('a', 'b', 'o'), "baobab") -> true
  */
-fun canBuildFrom(chars: List<Char>, word: String): Boolean = TODO()
+fun canBuildFrom(chars: List<Char>, word: String): Boolean {
+    for (char in word) {
+        if (char !in chars) {
+            return false
+        }
+    }
+    return true
+}
 
 /**
  * Средняя
@@ -310,7 +317,19 @@ fun canBuildFrom(chars: List<Char>, word: String): Boolean = TODO()
  * Например:
  *   extractRepeats(listOf("a", "b", "a")) -> mapOf("a" to 2)
  */
-fun extractRepeats(list: List<String>): Map<String, Int> = TODO()
+fun extractRepeats(list: List<String>): Map<String, Int> {
+    val res = mutableMapOf<String, Int>()
+    val keyList = mutableListOf<String>()
+    for (char in list) {
+        if (res[char] == null) res[char] = 1
+        else {
+            res[char] = res[char]!!.toInt() + 1
+        }
+    }
+    for ((char, _) in res) keyList.add(char)
+    for (char in keyList) if (res[char] == 1) res.remove(char)
+    return res
+}
 
 /**
  * Средняя
