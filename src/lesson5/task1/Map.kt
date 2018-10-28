@@ -297,11 +297,7 @@ fun whoAreInBoth(a: List<String>, b: List<String>): List<String> {
  *   canBuildFrom(listOf('a', 'b', 'o'), "baobab") -> true
  */
 fun canBuildFrom(chars: List<Char>, word: String): Boolean {
-    for (char in word) {
-        if (char !in chars) {
-            return false
-        }
-    }
+    for (char in word) if (char.toLowerCase() !in chars && char.toUpperCase() !in chars) return false
     return true
 }
 
@@ -389,4 +385,32 @@ fun findSumOfTwo(list: List<Int>, number: Int): Pair<Int, Int> {
  *     450
  *   ) -> emptySet()
  */
-fun bagPacking(treasures: Map<String, Pair<Int, Int>>, capacity: Int): Set<String> = TODO()
+fun bestValue(nItems: Int, maxWeight: Int, enumNames: Map<Int, String>,
+              treasures: Map<String, Pair<Int, Int>>): Int {
+    if (nItems == 0) return 0
+    val tempWeight = treasures[enumNames[nItems - 1]]!!.first
+    if (tempWeight > maxWeight) return bestValue(nItems - 1, maxWeight,
+            enumNames, treasures)
+    return max(
+            bestValue(nItems - 1, maxWeight, enumNames, treasures),
+            bestValue(nItems - 1, maxWeight - tempWeight,
+                    enumNames, treasures) + treasures[enumNames[nItems - 1]]!!.second)
+}
+
+fun bagPacking(treasures: Map<String, Pair<Int, Int>>, capacity: Int): Set<String> {
+    val res = mutableSetOf<String>()
+    val enumNames = mutableMapOf<Int, String>()
+    var iter = 0
+    for ((key, _) in treasures) {
+        enumNames[iter] = key
+        iter++
+    }
+    var maxWeight = capacity
+    for (i in treasures.size - 1 downTo 0) {
+        if (bestValue(i + 1, maxWeight, enumNames, treasures) > bestValue(i, maxWeight, enumNames, treasures)) {
+            if (enumNames[i] != null) res.add(enumNames[i].toString())
+            maxWeight -= treasures[enumNames[i]]!!.first
+        }
+    }
+    return res
+}
