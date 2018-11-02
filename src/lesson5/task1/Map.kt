@@ -122,10 +122,10 @@ fun mergePhoneBooks(mapA: Map<String, String>, mapB: Map<String, String>): Map<S
 fun buildGrades(grades: Map<String, Int>): Map<Int, List<String>> {
     val res = mutableMapOf<Int, MutableList<String>>()
     for ((name, grade) in grades) {
-        if (res[grade] == null) res[grade] = mutableListOf(name)
-        else {
-            res[grade]!!.add(name)
-        }
+        var temp = res[grade]
+        if (temp == null) temp = mutableListOf(name)
+        else temp.add(name)
+        if (res[grade] != null) res[grade] = temp
     }
     return res
 }
@@ -162,13 +162,14 @@ fun averageStockPrice(stockPrices: List<Pair<String, Double>>): Map<String, Doub
     val res = mutableMapOf<String, Double>()
     val count = mutableMapOf<String, Int>()
     for ((name, price) in stockPrices) {
-        if (sum[name] == null) {
-            sum[name] = price
-            count[name] = 1
-        } else {
-            count[name] = count[name]!!.toInt() + 1
-            sum[name] = sum[name]!!.toDouble() + price
-        }
+        var tempSum = sum[name]
+        var tempCount = count[name]
+        if (tempSum == null) tempSum = price
+        else tempSum += price
+        if (tempCount == null) tempCount = 1
+        else tempCount++
+        sum[name] = tempSum
+        count[name] = tempCount
     }
     for ((name, price) in sum) res[name] = price / count[name]!!.toInt()
     return res
@@ -191,9 +192,9 @@ fun averageStockPrice(stockPrices: List<Pair<String, Double>>): Map<String, Doub
  */
 fun findCheapestStuff(stuff: Map<String, Pair<String, Double>>, kind: String): String? {
     var res: String? = null
-    var lowestCost = -1.0
+    var lowestCost: Double? = null
     for ((name, description) in stuff) {
-        if (description.first == kind && (lowestCost == -1.0 || description.second < lowestCost)) {
+        if (description.first == kind && (lowestCost == null || description.second < lowestCost)) {
             lowestCost = description.second
             res = name
         }
@@ -225,36 +226,7 @@ fun findCheapestStuff(stuff: Map<String, Pair<String, Double>>, kind: String): S
  *          "Mikhail" to setOf("Sveta", "Marat")
  *        )
  */
-/**{fun searchingFriends(fullMap: Map<String, Set<String>>, name: String, result: MutableSet<String>): MutableSet<String> {
-//
-//    var finalResult = mutableSetOf<String>()
-//    var result1 = mutableSetOf<String>()
-//    for (people in fullMap[name]!!.toSet()) {
-//        var tempSet = fullMap[people]
-//        if (tempSet!!.contains(name)) tempSet = tempSet.minusElement(name)
-//        if (tempSet.intersect(result) != tempSet) {
-//            for (currentName in tempSet)
-//                if (currentName !in result) {
-//                    result1 = result
-//                    result1 = result1.union(searchingFriends(fullMap, currentName, result1))
-//                }
-//        } else {
-//            result1 = result
-//        }
-//        finalResult = finalResult.union(result1)
-//    }
-//    return result1
-//}
-// */
 fun propagateHandshakes(friends: Map<String, Set<String>>): Map<String, Set<String>> = TODO()
-/**{
-//    val res = mutableMapOf<String, Set<String>>()
-//    for ((name, handshakes) in friends) {
-//        if (handshakes.size < friends.size - 1) res[name] = searchingFriends(friends, name, friends[name]!!.toMutableSet())
-//    }
-//    return res
-//}
-// */
 /**
  * Простая
  *
@@ -280,12 +252,8 @@ fun subtractOf(a: MutableMap<String, String>, b: Map<String, String>): Unit {
  *
  * Для двух списков людей найти людей, встречающихся в обоих списках
  */
-fun whoAreInBoth(a: List<String>, b: List<String>): List<String> {
-    val res = mutableListOf<String>()
-    for (peopleA in a)
-        if (peopleA in b && peopleA !in res) res.add(peopleA)
-    return res
-}
+fun whoAreInBoth(a: List<String>, b: List<String>): List<String> =
+        (a.toMutableSet().intersect(b.toMutableSet())).toList()
 
 /**
  * Средняя
@@ -297,8 +265,10 @@ fun whoAreInBoth(a: List<String>, b: List<String>): List<String> {
  *   canBuildFrom(listOf('a', 'b', 'o'), "baobab") -> true
  */
 fun canBuildFrom(chars: List<Char>, word: String): Boolean {
-    for (char in word) if (char.toLowerCase() !in chars && char.toUpperCase() !in chars) return false
-    return true
+    val setOfChars = mutableListOf<Char>()
+    chars.forEach { setOfChars.add(it.toLowerCase()) }
+    val setOfWord = word.toLowerCase().toSet()
+    return (setOfChars.intersect(setOfWord) == setOfWord)
 }
 
 /**
@@ -357,12 +327,12 @@ fun hasAnagrams(words: List<String>): Boolean = TODO()
  */
 fun findSumOfTwo(list: List<Int>, number: Int): Pair<Int, Int> {
     if (list.isEmpty()) return Pair(-1, -1)
-    for (i in 0 until list.size) {
-        for (j in (i + 1) until list.size)
-            if (list[i] + list[j] == number) {
-                return Pair(i, j)
-            }
-    }
+    for (element in list)
+        if (number - element in list)
+            if (element * 2 != number)
+                return Pair(list.indexOf(element), list.indexOf(number - element))
+            else if (list.indexOf(element) != list.lastIndexOf(element))
+                return Pair(list.indexOf(element), list.lastIndexOf(element))
     return Pair(-1, -1)
 }
 
@@ -385,32 +355,49 @@ fun findSumOfTwo(list: List<Int>, number: Int): Pair<Int, Int> {
  *     450
  *   ) -> emptySet()
  */
-fun bestValue(nItems: Int, maxWeight: Int, enumNames: Map<Int, String>,
-              treasures: Map<String, Pair<Int, Int>>): Int {
-    if (nItems == 0) return 0
-    val tempWeight = treasures[enumNames[nItems - 1]]!!.first
-    if (tempWeight > maxWeight) return bestValue(nItems - 1, maxWeight,
-            enumNames, treasures)
-    return max(
-            bestValue(nItems - 1, maxWeight, enumNames, treasures),
-            bestValue(nItems - 1, maxWeight - tempWeight,
-                    enumNames, treasures) + treasures[enumNames[nItems - 1]]!!.second)
+fun findAns(number: Int, weight: Int, list: List<List<Int>>, treasures: Map<String, Pair<Int, Int>>, enumNames: Map<Int, String>, ans: MutableSet<String>): MutableSet<String> {
+    if (list[number][weight] == 0) return ans
+    if (list[number - 1][weight] == list[number][weight]) return findAns(number - 1, weight, list, treasures, enumNames, ans)
+    else {
+        val newSet = findAns(number - 1, weight - treasures[enumNames[number]]!!.first, list, treasures, enumNames, ans)
+        val temp = (enumNames[number]).toString()
+        newSet.add(temp)
+        return newSet
+    }
 }
-
 fun bagPacking(treasures: Map<String, Pair<Int, Int>>, capacity: Int): Set<String> {
-    val res = mutableSetOf<String>()
+    if (treasures.isEmpty()) return setOf()
+    var condition = true
+    for ((_, pair) in treasures) {
+        if (capacity >= pair.first) {
+            condition = false
+            break
+        }
+    }
+    if (condition) return setOf()
+    val list = mutableListOf<MutableList<Int>>()
+    var count = 0
     val enumNames = mutableMapOf<Int, String>()
-    var iter = 0
+    var iter = 1
     for ((key, _) in treasures) {
         enumNames[iter] = key
         iter++
     }
-    var maxWeight = capacity
-    for (i in treasures.size - 1 downTo 0) {
-        if (bestValue(i + 1, maxWeight, enumNames, treasures) > bestValue(i, maxWeight, enumNames, treasures)) {
-            if (enumNames[i] != null) res.add(enumNames[i].toString())
-            maxWeight -= treasures[enumNames[i]]!!.first
+    for (i in 0..treasures.size) {
+        list.add(mutableListOf())
+        for (j in 0..capacity) list[i].add(0)
+    }
+    for ((_, pair) in treasures) {
+        count++
+        for (j in 1..capacity) {
+            if (pair.first > j) {
+                list[count][j] = list[count - 1][j]
+            } else {
+                list[count][j] = max(list[count - 1][j], list[count - 1][j - pair.first] + pair.second)
+            }
         }
     }
-    return res
+    val output = mutableSetOf<String>()
+    return findAns(treasures.size, capacity, list, treasures, enumNames, output)
 }
+
