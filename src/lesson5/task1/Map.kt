@@ -125,7 +125,7 @@ fun buildGrades(grades: Map<String, Int>): Map<Int, List<String>> {
         var temp = res[grade]
         if (temp == null) temp = mutableListOf(name)
         else temp.add(name)
-        if (res[grade] != null) res[grade] = temp
+        res[grade] = temp
     }
     return res
 }
