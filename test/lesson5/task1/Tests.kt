@@ -145,7 +145,7 @@ class Tests {
                 buildGrades(mapOf("Марат" to 3, "Семён" to 5, "Михаил" to 5))
         )
         assertEquals(
-                mapOf(3 to listOf("Семён", "Михаил", "Марат")),
+                mapOf(3 to listOf("Марат", "Семён", "Михаил")),
                 buildGrades(mapOf("Марат" to 3, "Семён" to 3, "Михаил" to 3))
         )
     }
@@ -266,6 +266,7 @@ class Tests {
         assertFalse(canBuildFrom(emptyList(), "foo"))
         assertTrue(canBuildFrom(listOf('a', 'b', 'o'), "baobab"))
         assertFalse(canBuildFrom(listOf('a', 'm', 'r'), "Marat"))
+        assertTrue(canBuildFrom(listOf('r', '~', 'U', 'W', 'ﷺ', '㦞', '(', '拳', '', 't', '`', '椦'), "w"))
     }
 
     @Test

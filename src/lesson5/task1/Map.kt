@@ -266,7 +266,7 @@ fun whoAreInBoth(a: List<String>, b: List<String>): List<String> =
  */
 fun canBuildFrom(chars: List<Char>, word: String): Boolean {
     val setOfChars = mutableListOf<Char>()
-    chars.forEach { setOfChars.add(it.toLowerCase()) }
+    for (char in chars) setOfChars.add(char.toLowerCase())
     val setOfWord = word.toLowerCase().toSet()
     return (setOfChars.intersect(setOfWord) == setOfWord)
 }
@@ -327,12 +327,15 @@ fun hasAnagrams(words: List<String>): Boolean = TODO()
  */
 fun findSumOfTwo(list: List<Int>, number: Int): Pair<Int, Int> {
     if (list.isEmpty()) return Pair(-1, -1)
-    for (element in list)
-        if (number - element in list)
-            if (element * 2 != number)
-                return Pair(list.indexOf(element), list.indexOf(number - element))
-            else if (list.indexOf(element) != list.lastIndexOf(element))
-                return Pair(list.indexOf(element), list.lastIndexOf(element))
+    for (i in 0 until list.size - 1)
+        if (number - list[i] in list)
+            if (list[i] * 2 != number)
+                return Pair(i, list.indexOf(number - list[i]))
+            else {
+                val lastI = list.lastIndexOf(list[i])
+                if (i != lastI)
+                    return Pair(i, lastI)
+            }
     return Pair(-1, -1)
 }
 
@@ -355,15 +358,17 @@ fun findSumOfTwo(list: List<Int>, number: Int): Pair<Int, Int> {
  *     450
  *   ) -> emptySet()
  */
-fun findAns(number: Int, weight: Int, list: List<List<Int>>, treasures: Map<String, Pair<Int, Int>>, enumNames: Map<Int, String>, ans: MutableSet<String>): MutableSet<String> {
+fun findAns(number: Int, weight: Int, list: List<List<Int>>, treasures: Map<String, Pair<Int, Int>>,
+            enumNames: Map<Int, String>, ans: MutableSet<String>): MutableSet<String> {
     if (list[number][weight] == 0) return ans
-    if (list[number - 1][weight] == list[number][weight]) return findAns(number - 1, weight, list, treasures, enumNames, ans)
-    else {
-        val newSet = findAns(number - 1, weight - treasures[enumNames[number]]!!.first, list, treasures, enumNames, ans)
-        val temp = (enumNames[number]).toString()
-        newSet.add(temp)
-        return newSet
-    }
+    if (list[number - 1][weight] == list[number][weight])
+        return findAns(number - 1, weight, list, treasures, enumNames, ans)
+    val newSet = findAns(number - 1, weight - treasures[enumNames[number]]!!.first,
+            list, treasures, enumNames, ans)
+    val temp = (enumNames[number])
+    newSet.add(temp ?: "")
+    return newSet
+
 }
 fun bagPacking(treasures: Map<String, Pair<Int, Int>>, capacity: Int): Set<String> {
     if (treasures.isEmpty()) return setOf()
