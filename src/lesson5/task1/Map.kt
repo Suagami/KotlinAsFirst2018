@@ -161,7 +161,6 @@ fun averageStockPrice(stockPrices: List<Pair<String, Double>>): Map<String, Doub
     val prices = mutableMapOf<String, MutableList<Double>>()
     val res = mutableMapOf<String, Double>()
     val count = mutableMapOf<String, Int>()
-    var tempSum = 0.0
     for ((name, price) in stockPrices) {
         var tempPrice = prices[name]
         var tempCount = count[name]
@@ -173,9 +172,9 @@ fun averageStockPrice(stockPrices: List<Pair<String, Double>>): Map<String, Doub
         count[name] = tempCount
     }
     for ((name, costs) in prices) {
+        var tempSum = 0.0
         for (element in costs) tempSum += element / (count[name] ?: 1)
         res[name] = tempSum
-        tempSum = 0.0
     }
     return res
 }
