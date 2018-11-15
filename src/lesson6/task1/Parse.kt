@@ -175,8 +175,10 @@ fun bestHighJump(jumps: String): Int {
     val results = mutableListOf<Int>()
     if (list.size % 2 == 1) return -1
     for (i in 0 until list.size / 2) {
-        for (digit in list[2 * i]) if (!digit.isDigit()) return -1
-        for (symbol in list[2 * i + 1]) if (symbol !in signs) return -1
+        for (digit in list[2 * i])
+            if (!digit.isDigit()) return -1
+        for (symbol in list[2 * i + 1])
+            if (symbol !in signs) return -1
         if (list[2 * i + 1].last() == '+') results.add(list[2 * i].toInt())
     }
     if (results.isEmpty()) return -1
