@@ -76,10 +76,11 @@ fun dateStrToDigit(str: String): String {
     val date = str.split(" ")
     val months = listOf("января", "февраля", "марта", "апреля", "мая", "июня", "июля", "августа", "сентября",
             "октября", "ноября", "декабря")
-    if (date.size != 3 || date[1] !in months) return ""
+    if (date.size != 3) return ""
+    if (date[1] !in months) return ""
     val condition = (daysInMonth(months.indexOf(date[1]) + 1, date[2].toInt()) < date[0].toInt())
     if (condition) return ""
-    val firstDate = if (date[0].toInt() in 0..9) "0${date[0]}" else date[0]
+    val firstDate = if (date[0].toInt() in 0..9) "0${date[0].toInt()}" else date[0]
     val secondDate = if (months.indexOf(date[1]) in 0..8) "0${months.indexOf(date[1]) + 1}"
     else (months.indexOf(date[1]) + 1).toString()
     return "$firstDate.$secondDate.${date[2]}"
@@ -145,8 +146,10 @@ fun flattenPhoneNumber(phone: String): String {
  */
 fun bestLongJump(jumps: String): Int {
     val list = jumps.split(" ")
+    val realList = mutableListOf<String>()
+    for (element in list) if (element != "") realList.add(element)
     val results = mutableListOf<Int>()
-    for (element in list) {
+    for (element in realList) {
         if (element != "-" && element != "%") {
             for (digit in element) if (!digit.isDigit()) return -1
             results.add(element.toInt())
@@ -190,6 +193,7 @@ fun bestHighJump(jumps: String): Int {
  * Про нарушении формата входной строки бросить исключение IllegalArgumentException
  */
 fun plusMinus(expression: String): Int {
+    if (expression == "") throw IllegalArgumentException()
     val list = expression.split(" ")
     val signs = listOf("+", "-")
     for (digit in list[0]) if (!digit.isDigit()) throw IllegalArgumentException()
@@ -239,6 +243,7 @@ fun firstDuplicateIndex(str: String): Int {
 fun mostExpensive(description: String): String {
     val list = description.split(" ")
     if (list.size % 2 == 1) return ""
+    if (list.size == 2) return list[0]
     val mapOfProducts = mutableMapOf<String, Double>()
     var tempCost: String
     var tempCostList: List<String>
@@ -253,7 +258,8 @@ fun mostExpensive(description: String): String {
                 else listOf(tempCost, "0")
         for (digit in tempCostList[0]) if (!digit.isDigit()) return ""
         for (digit in tempCostList[1]) if (!digit.isDigit()) return ""
-        mapOfProducts[list[2 * i]] = tempCostList[0].toInt() + tempCostList[1].toInt() / 10.0.pow(tempCostList[1].length)
+        mapOfProducts[list[2 * i]] = tempCostList[0].toInt() +
+                tempCostList[1].toInt() / 10.0.pow(tempCostList[1].length)
     }
     return findMostExpensiveStuff(mapOfProducts)
 }
@@ -282,7 +288,7 @@ fun findMostExpensiveStuff(stuff: Map<String, Double>): String {
  * Вернуть -1, если roman не является корректным римским числом
  */
 fun fromRoman(roman: String): Int {
-    //println("pass")
+    if (roman == "") return -1
     val numbers = mapOf(
             'I' to 1,
             'V' to 5,
