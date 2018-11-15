@@ -61,8 +61,8 @@ fun countSubstrings(inputName: String, substrings: List<String>): Map<String, In
     val length = inputText.length
     for (str in substrings) {
         val lowerStr = str.toLowerCase()
-        val tempText = Regex(lowerStr).replace(inputText, "")
-        res[str] = (length - tempText.length) / str.length
+        val matches = Regex(lowerStr).findAll(inputText, 0)
+        res[str] = matches.toList().size
     }
     return res
 }
