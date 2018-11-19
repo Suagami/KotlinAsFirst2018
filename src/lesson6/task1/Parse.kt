@@ -72,18 +72,15 @@ fun main(args: Array<String>) {
  * Обратите внимание: некорректная с точки зрения календаря дата (например, 30.02.2009) считается неверными
  * входными данными.
  */
+val months = listOf("января", "февраля", "марта", "апреля", "мая", "июня", "июля", "августа", "сентября",
+        "октября", "ноября", "декабря")
+
 fun dateStrToDigit(str: String): String {
     val date = str.split(" ")
-    val months = listOf("января", "февраля", "марта", "апреля", "мая", "июня", "июля", "августа", "сентября",
-            "октября", "ноября", "декабря")
     if (date.size != 3) return ""
     if (date[1] !in months) return ""
-    val condition = (daysInMonth(months.indexOf(date[1]) + 1, date[2].toInt()) < date[0].toInt())
-    if (condition) return ""
-    val firstDate = if (date[0].toInt() in 0..9) "0${date[0].toInt()}" else date[0]
-    val secondDate = if (months.indexOf(date[1]) in 0..8) "0${months.indexOf(date[1]) + 1}"
-    else (months.indexOf(date[1]) + 1).toString()
-    return "$firstDate.$secondDate.${date[2]}"
+    if (daysInMonth(months.indexOf(date[1]) + 1, date[2].toInt()) < date[0].toInt()) return ""
+    return String.format("%02d.%02d.%01d", date[0].toInt(), months.indexOf(date[1]) + 1, date[2])
 }
 
 /**
@@ -98,8 +95,6 @@ fun dateStrToDigit(str: String): String {
  */
 fun dateDigitToStr(digital: String): String {
     val date = digital.split(".")
-    val months = listOf("января", "февраля", "марта", "апреля", "мая", "июня", "июля", "августа", "сентября",
-            "октября", "ноября", "декабря")
     try {
         if (date.size != 3 || date[1].toInt() !in 1..12 || date[2].toInt() < 0) return ""
     } catch (e: NumberFormatException) {
@@ -155,8 +150,7 @@ fun bestLongJump(jumps: String): Int {
             results.add(element.toInt())
         }
     }
-    if (results.isEmpty()) return -1
-    return results.sorted().last()
+    return results.max() ?: -1
 }
 
 /**
@@ -197,14 +191,15 @@ fun bestHighJump(jumps: String): Int {
 fun plusMinus(expression: String): Int {
     if (expression == "") throw IllegalArgumentException()
     val list = expression.split(" ")
-    val signs = listOf("+", "-")
-    for (digit in list[0]) if (!digit.isDigit()) throw IllegalArgumentException()
-    var res = list[0].toInt()
     if (list.size % 2 == 0) throw IllegalArgumentException()
+    for (digit in list[0]) if (!digit.isDigit()) throw IllegalArgumentException() //проверка формата первого числа
+    if (list.size == 1) return list[0].toInt()
+    val signs = listOf("+", "-")
+    var res = list[0].toInt()
     for (i in 1..list.size / 2) {
-        for (digit in list[2 * i]) if (!digit.isDigit()) throw IllegalArgumentException()
+        for (digit in list[2 * i]) if (!digit.isDigit()) throw IllegalArgumentException() //проверка формата остальных чисел
         when {
-            list[2 * i - 1] !in signs -> throw IllegalArgumentException()
+            list[2 * i - 1] !in signs -> throw IllegalArgumentException() // проверка формата знака
             list[2 * i - 1] == "+" -> res += list[2 * i].toInt()
             else -> res -= list[2 * i].toInt()
         }
@@ -243,24 +238,21 @@ fun firstDuplicateIndex(str: String): Int {
  * Все цены должны быть больше либо равны нуля.
  */
 fun mostExpensive(description: String): String {
-    val list = description.split(" ")
-    if (list.size % 2 == 1) return ""
-    if (list.size == 2) return list[0]
+    if (description == "") return ""
+    val list = description.split(";")
+    if (list.size == 1) return list[0].split(" ")[0]
     val mapOfProducts = mutableMapOf<String, Double>()
-    var tempCost: String
-    var tempCostList: List<String>
-    for (i in 0 until list.size / 2) {
-        if (i != list.size / 2 - 1 && list[2 * i + 1].last() != ';') return ""
-        tempCost =
-                if (list[2 * i + 1].last() == ';') list[2 * i + 1].substring(0, list[2 * i + 1].length - 1)
-                else list[2 * i + 1]
-        for (symbol in tempCost) if (!symbol.isDigit() && symbol != '.') return ""
-        tempCostList =
-                if ('.' in tempCost) tempCost.split(".")
-                else listOf(tempCost, "0")
+    for (str in list) {
+        val tempStr =
+                if (str[0] == ' ') str.substring(1, str.length).split(" ") else str.split(" ")
+        if (tempStr.size != 2) return ""
+        for (symbol in tempStr[1]) if (!symbol.isDigit() && symbol != '.') return ""
+        val tempCostList =
+                if ('.' in tempStr[1]) tempStr[1].split(".")
+                else listOf(tempStr[1], "0")
         for (digit in tempCostList[0]) if (!digit.isDigit()) return ""
         for (digit in tempCostList[1]) if (!digit.isDigit()) return ""
-        mapOfProducts[list[2 * i]] = tempCostList[0].toInt() +
+        mapOfProducts[tempStr[0]] = tempCostList[0].toInt() +
                 tempCostList[1].toInt() / 10.0.pow(tempCostList[1].length)
     }
     return findMostExpensiveStuff(mapOfProducts)
@@ -289,38 +281,43 @@ fun findMostExpensiveStuff(stuff: Map<String, Double>): String {
  *
  * Вернуть -1, если roman не является корректным римским числом
  */
+fun power(a: Int, b: Int): Int {
+    var res = 1
+    for (i in 1..b) res *= a
+    return res
+}
+
+val numbers = mapOf(
+        'I' to 1,
+        'V' to 5,
+        'X' to 10,
+        'L' to 50,
+        'C' to 100,
+        'D' to 500,
+        'M' to 1000
+)
+val listOfNumbers = listOf('I', 'V', 'X', 'L', 'C', 'D', 'M')
+val specialNumbers = listOf('I', 'X', 'C', 'M')
 fun fromRoman(roman: String): Int {
     if (roman == "") return -1
-    val numbers = mapOf(
-            'I' to 1,
-            'V' to 5,
-            'X' to 10,
-            'L' to 50,
-            'C' to 100,
-            'D' to 500,
-            'M' to 1000
-    )
-    val listOfNumbers = setOf('I', 'V', 'X', 'L', 'C', 'D', 'M')
-    val specialNumbers = setOf('I', 'X', 'C', 'M')
     for (letter in roman) if (numbers[letter] == null) return -1
-    //println("pass1")
-    for (i in 0 until roman.length - 1) {
-        if (roman[i] !in specialNumbers && listOfNumbers.indexOf(roman[i]) <= listOfNumbers.indexOf(roman[i + 1])) return -1
-        //println("pass2 num $i, let ${roman[i]}, next let ${roman[i + 1]}")
-        //println("numbers[roman[i + 1]] = ${numbers[roman[i + 1]]}, 10.0.pow(specialNumbers.indexOf(roman[i])) = ${10.0.pow(specialNumbers.indexOf(roman[i]) + 1)}")
-        if (roman[i] in specialNumbers && (numbers[roman[i + 1]]!!.toInt() != 10.0.pow(specialNumbers.indexOf(roman[i]) + 1).toInt() &&
-                        numbers[roman[i + 1]]!!.toInt() != (10.0.pow(specialNumbers.indexOf(roman[i]) + 1) / 2).toInt()) &&
-                listOfNumbers.indexOf(roman[i]) < listOfNumbers.indexOf(roman[i + 1])) return -1
-        // println("pass3 num $i")
+    val romanLength = roman.length
+    for (i in 0 until romanLength - 1) {
+        if (roman[i] !in specialNumbers && listOfNumbers.indexOf(roman[i]) <= listOfNumbers.indexOf(roman[i + 1]))
+            return -1
+        if (roman[i] in specialNumbers &&
+                (numbers[roman[i + 1]]!!.toInt() != power(10, specialNumbers.indexOf(roman[i]) + 1)
+                        && numbers[roman[i + 1]]!!.toInt() != (power(10, specialNumbers.indexOf(roman[i]) + 1)
+                        / 2)) && listOfNumbers.indexOf(roman[i]) < listOfNumbers.indexOf(roman[i + 1]))
+            return -1
     }
     var res = 0
-    for (i in 0 until roman.length - 1) {
+    for (i in 0 until romanLength - 1) {
         if (listOfNumbers.indexOf(roman[i]) % 2 == 0 && roman[i] != 'M') {
-            if (numbers[roman[i + 1]]!!.toInt() == 10.0.pow(specialNumbers.indexOf(roman[i]) + 1).toInt() ||
-                    numbers[roman[i + 1]]!!.toInt() == (10.0.pow(specialNumbers.indexOf(roman[i]) + 1) / 2).toInt())
+            if (numbers[roman[i + 1]]!!.toInt() == power(10, specialNumbers.indexOf(roman[i]) + 1) ||
+                    numbers[roman[i + 1]]!!.toInt() == (power(10, specialNumbers.indexOf(roman[i]) + 1) / 2))
                 res -= numbers[roman[i]]!!.toInt() else res += numbers[roman[i]]!!.toInt()
         } else if (numbers[roman[i]] != null) res += numbers[roman[i]]!!.toInt()
-        // println("pass 4, num $i, let ${roman[i]}, next let ${roman[i + 1]}, cur res = $res")
     }
     return res + numbers[roman.last()]!!.toInt()
 }
@@ -361,93 +358,4 @@ fun fromRoman(roman: String): Int {
  * IllegalArgumentException должен бросаться даже если ошибочная команда не была достигнута в ходе выполнения.
  *
 // */
-//fun searchingPairOfBrackets(commands: String, tempBrackets: Int?, isItCheckingForException: Boolean): Pair<Int?, Int> {
-//    if (isItCheckingForException) {
-//        var tempBracket = tempBrackets
-//        for (command in commands) {
-//            if (command == '[') {
-//                if (tempBracket == null) tempBracket = 1 else tempBracket += 1
-//            }
-//            if (command == ']') {
-//                if (tempBracket == null || tempBracket == 0) throw IllegalArgumentException()
-//                else tempBracket -= 1
-//            }
-//        }
-//        return Pair(tempBracket, 0)
-//    }
-//    var tempBracket = tempBrackets
-//    var bracketsLength = 0
-//    for (command in commands) {
-//        if (bracketsLength > 0) bracketsLength++
-//        if (command == '[') {
-//            if (tempBracket == null) {
-//                tempBracket = 1
-//                bracketsLength = 1
-//            } else tempBracket += 1
-//        }
-//        if (command == ']') {
-//            if (tempBracket != null) tempBracket -= 1
-//        }
-//        if (tempBracket == 0) return Pair(tempBracket, bracketsLength)
-//    }
-//    return Pair(tempBracket, bracketsLength)
-//}
-fun computeDeviceCells(cells: Int, commands: String, limit: Int): List<Int> = TODO() //{
-//    val legalCommands = setOf('[', ']', '<', '>', '+', '-', ' ')
-//    for (command in commands) if (command !in legalCommands) throw IllegalArgumentException()
-//    var tempBracket: Int? = null
-//    tempBracket = searchingPairOfBrackets(commands, tempBracket, true).first
-//    if (tempBracket != 0) throw IllegalArgumentException()
-//    val res = mutableListOf<Int>()
-//    for (i in 0 until cells) res.add(0)
-//    var tempPosition = cells / 2
-//    var i = 0
-//    while (i != commands.length) {
-//        if (commands[i] == '>' || commands[i] == '<') {
-//            tempPosition += simpleCommands(commands[i], tempPosition, cells)
-//            i++
-//            continue
-//        }
-//        if (commands[i] == '+' || commands[i] == '-') {
-//            res[tempPosition] += simpleCommands(commands[i], tempPosition, cells)
-//            i++
-//            continue
-//        }
-//        if (commands[i] == '[') notSimpleCommands(commands[i])
-//    }
-//    return res
-//}
-//fun notSimpleCommands(res: MutableList<Int>, i: Int, position: Int, commands: String, cells: Int) {
-//    var j = i
-//    var tempPosition = position
-//
-//    while (res[tempPosition] != 0) {
-//        for (command in commands) {
-//            if (commands[j] == '>' || commands[j] == '<') {
-//                tempPosition += simpleCommands(commands[j], tempPosition, cells)
-//                j++
-//                continue
-//            }
-//            if (commands[i] == '+' || commands[i] == '-') {
-//                res[tempPosition] += simpleCommands(commands[i], tempPosition, cells)
-//                j++
-//                continue
-//            }
-//            if (commands[i] == '[') notSimpleCommands()
-//            if (commands[i] == ']')
-//        }
-//    }
-//}
-//fun simpleCommands(command: Char, tempPosition: Int, cells: Int): Int {
-//    if (command == '>') {
-//        if (tempPosition == cells - 1) throw IllegalStateException() else return 1
-//    }
-//    if (command == '<') {
-//        if (tempPosition == 0) throw IllegalStateException() else return -1
-//    }
-//    if (command == '+') return 1
-//    if (command == '-') return -1
-//    return 0
-//}
-
-
+fun computeDeviceCells(cells: Int, commands: String, limit: Int): List<Int> = TODO()

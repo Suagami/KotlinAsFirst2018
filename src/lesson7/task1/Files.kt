@@ -58,7 +58,6 @@ fun countSubstrings(inputName: String, substrings: List<String>): Map<String, In
     val inputText = buildString {
         for (line in File(inputName).readLines()) append(line.toLowerCase() + " ")
     }
-    val length = inputText.length
     for (str in substrings) {
         val lowerStr = str.toLowerCase()
         val matches = Regex(lowerStr).findAll(inputText, 0)
@@ -254,21 +253,125 @@ Suspendisse ~~et elit in enim tempus iaculis~~.
  *
  * Соответствующий выходной файл:
 <html>
-    <body>
-        <p>
-            Lorem ipsum <i>dolor sit amet</i>, consectetur <b>adipiscing</b> elit.
-            Vestibulum lobortis. <s>Est vehicula rutrum <i>suscipit</i></s>, ipsum <s>lib</s>ero <i>placerat <b>tortor</b></i>.
-        </p>
-        <p>
-            Suspendisse <s>et elit in enim tempus iaculis</s>.
-        </p>
-    </body>
+<body>
+<p>
+Lorem ipsum <i>dolor sit amet</i>, consectetur <b>adipiscing</b> elit.
+Vestibulum lobortis. <s>Est vehicula rutrum <i>suscipit</i></s>, ipsum <s>lib</s>ero <i>placerat <b>tortor</b></i>.
+</p>
+<p>
+Suspendisse <s>et elit in enim tempus iaculis</s>.
+</p>
+</body>
 </html>
  *
  * (Отступы и переносы строк в примере добавлены для наглядности, при решении задачи их реализовывать не обязательно)
  */
 fun markdownToHtmlSimple(inputName: String, outputName: String) {
-    TODO()
+    val outputStream = File(outputName).bufferedWriter(); outputStream.write("<html><body>")
+    //println("pass")
+    var firstTry = false
+    for (line in File(inputName).readLines()) {
+        if (firstTry && line.isEmpty()) outputStream.write("</p><p>")
+        if (!firstTry) {
+            firstTry = true; outputStream.write("<p>")
+        }
+        var i = 0
+        var isBOpened = false; var isIOpened = false; var isSOpened = false
+        var condition = true
+        val tempLength = line.length
+        while (i < tempLength - 3) {
+            //println("i = $i, line.length-1 = ${line.length - 1}")
+            when {
+                (line[i] == '*') -> {
+                    when {
+                        line[i + 2] == '*' && line[i + 1] == '*' -> {
+                            while (condition) {
+                                if (tempLength - 1 == i + 2) {
+                                    condition = false
+                                } else if (line[i + 3] == '*') {
+                                    outputStream.write("*"); i++
+                                } else {
+                                    condition = false; continue
+                                }
+                            }
+                            when {
+                                isBOpened && !isIOpened -> {
+                                    outputStream.write("</b><i>"); isBOpened = false; isIOpened = true
+                                }
+                                !isBOpened && isIOpened -> {
+                                    outputStream.write("<b></i>"); isBOpened = true; isIOpened = false
+                                }
+                                isBOpened && isIOpened -> {
+                                    outputStream.write("</b></i>"); isBOpened = false; isIOpened = false
+                                }
+                                else -> {
+                                    outputStream.write("<b><i>"); isBOpened = true; isIOpened = true
+                                }
+                            }
+
+                            i += 2
+                        }
+                        line[i + 1] == '*' -> {
+                            isBOpened = if (isBOpened) {
+                                outputStream.write("</b>"); false
+                            } else {
+                                outputStream.write("<b>"); true
+                            }
+                            i++
+                        }
+                        else -> {
+                            isIOpened = if (isIOpened) {
+                                outputStream.write("</i>"); false
+                            } else {
+                                outputStream.write("<i>"); true
+                            }
+                        }
+                    }
+                }
+                line[i] == '~' && line[i + 1] == '~' -> {
+                    isSOpened = if (isSOpened) {
+                        outputStream.write("</s>"); false
+                    } else {
+                        outputStream.write("<s>"); true
+                    }
+                    i++
+                }
+                else -> outputStream.write(line[i].toString())
+            }
+            i++
+        }
+        var condition2 = true
+        if (tempLength >= 3)
+            if (line[tempLength - 3].toString() + line[tempLength - 2].toString() +
+                    line[tempLength - 1].toString() == "***") {
+                when {
+                    isBOpened && !isIOpened -> {
+                        outputStream.write("*</b>"); isBOpened = false; isIOpened = true
+                    }
+                    !isBOpened && isIOpened -> {
+                        outputStream.write("**</i>"); isBOpened = true; isIOpened = false
+                    }
+                    isBOpened && isIOpened -> {
+                        outputStream.write("</b></i>"); isBOpened = false; isIOpened = false
+                    }
+                    else -> {
+                        outputStream.write("***"); isBOpened = true; isIOpened = true
+                    }
+                }
+                condition2 = false
+            } else outputStream.write(line[tempLength - 3].toString())
+        if (tempLength >= 2 && condition2)
+            if (line[tempLength - 2].toString() + line[tempLength - 1].toString() == "~~" && isSOpened) {
+                outputStream.write("</s>")
+            } else if (line[tempLength - 2].toString() + line[tempLength - 1].toString() == "**" && isBOpened) {
+                outputStream.write("</b>")
+            } else outputStream.write(line[tempLength - 2].toString())
+        if (tempLength >= 1 && condition2) if (line[tempLength - 1] == '*' && isIOpened) {
+            outputStream.write("</i>")
+        } else outputStream.write(line[tempLength - 1].toString())
+    }
+    outputStream.write("</p></body></html>")
+    outputStream.close()
 }
 
 /**
@@ -305,61 +408,61 @@ fun markdownToHtmlSimple(inputName: String, outputName: String) {
  *
  * Пример входного файла:
 ///////////////////////////////начало файла/////////////////////////////////////////////////////////////////////////////
-* Утка по-пекински
-    * Утка
-    * Соус
-* Салат Оливье
-    1. Мясо
-        * Или колбаса
-    2. Майонез
-    3. Картофель
-    4. Что-то там ещё
-* Помидоры
-* Фрукты
-    1. Бананы
-    23. Яблоки
-        1. Красные
-        2. Зелёные
+ * Утка по-пекински
+ * Утка
+ * Соус
+ * Салат Оливье
+1. Мясо
+ * Или колбаса
+2. Майонез
+3. Картофель
+4. Что-то там ещё
+ * Помидоры
+ * Фрукты
+1. Бананы
+23. Яблоки
+1. Красные
+2. Зелёные
 ///////////////////////////////конец файла//////////////////////////////////////////////////////////////////////////////
  *
  *
  * Соответствующий выходной файл:
 ///////////////////////////////начало файла/////////////////////////////////////////////////////////////////////////////
 <html>
-  <body>
-    <ul>
-      <li>
-        Утка по-пекински
-        <ul>
-          <li>Утка</li>
-          <li>Соус</li>
-        </ul>
-      </li>
-      <li>
-        Салат Оливье
-        <ol>
-          <li>Мясо
-            <ul>
-              <li>
-                  Или колбаса
-              </li>
-            </ul>
-          </li>
-          <li>Майонез</li>
-          <li>Картофель</li>
-          <li>Что-то там ещё</li>
-        </ol>
-      </li>
-      <li>Помидоры</li>
-      <li>
-        Яблоки
-        <ol>
-          <li>Красные</li>
-          <li>Зелёные</li>
-        </ol>
-      </li>
-    </ul>
-  </body>
+<body>
+<ul>
+<li>
+Утка по-пекински
+<ul>
+<li>Утка</li>
+<li>Соус</li>
+</ul>
+</li>
+<li>
+Салат Оливье
+<ol>
+<li>Мясо
+<ul>
+<li>
+Или колбаса
+</li>
+</ul>
+</li>
+<li>Майонез</li>
+<li>Картофель</li>
+<li>Что-то там ещё</li>
+</ol>
+</li>
+<li>Помидоры</li>
+<li>
+Яблоки
+<ol>
+<li>Красные</li>
+<li>Зелёные</li>
+</ol>
+</li>
+</ul>
+</body>
 </html>
 ///////////////////////////////конец файла//////////////////////////////////////////////////////////////////////////////
  * (Отступы и переносы строк в примере добавлены для наглядности, при решении задачи их реализовывать не обязательно)
@@ -386,23 +489,23 @@ fun markdownToHtml(inputName: String, outputName: String) {
  * Вывести в выходной файл процесс умножения столбиком числа lhv (> 0) на число rhv (> 0).
  *
  * Пример (для lhv == 19935, rhv == 111):
-   19935
-*    111
+19935
+ *    111
 --------
-   19935
+19935
 + 19935
 +19935
 --------
- 2212785
+2212785
  * Используемые пробелы, отступы и дефисы должны в точности соответствовать примеру.
  * Нули в множителе обрабатывать так же, как и остальные цифры:
-  235
-*  10
+235
+ *  10
 -----
-    0
+0
 +235
 -----
- 2350
+2350
  *
  */
 fun printMultiplicationProcess(lhv: Int, rhv: Int, outputName: String) {
@@ -416,16 +519,16 @@ fun printMultiplicationProcess(lhv: Int, rhv: Int, outputName: String) {
  * Вывести в выходной файл процесс деления столбиком числа lhv (> 0) на число rhv (> 0).
  *
  * Пример (для lhv == 19935, rhv == 22):
-  19935 | 22
- -198     906
- ----
-    13
-    -0
-    --
-    135
-   -132
-   ----
-      3
+19935 | 22
+-198     906
+----
+13
+-0
+--
+135
+-132
+----
+3
 
  * Используемые пробелы, отступы и дефисы должны в точности соответствовать примеру.
  *
