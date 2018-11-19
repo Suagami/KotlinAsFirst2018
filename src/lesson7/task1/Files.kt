@@ -268,7 +268,6 @@ Suspendisse <s>et elit in enim tempus iaculis</s>.
  */
 fun markdownToHtmlSimple(inputName: String, outputName: String) {
     val outputStream = File(outputName).bufferedWriter(); outputStream.write("<html><body>")
-    //println("pass")
     var firstTry = false
     for (line in File(inputName).readLines()) {
         if (firstTry && line.isEmpty()) outputStream.write("</p><p>")
@@ -280,7 +279,6 @@ fun markdownToHtmlSimple(inputName: String, outputName: String) {
         var condition = true
         val tempLength = line.length
         while (i < tempLength - 3) {
-            //println("i = $i, line.length-1 = ${line.length - 1}")
             when {
                 (line[i] == '*') -> {
                     when {

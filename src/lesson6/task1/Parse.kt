@@ -302,6 +302,7 @@ fun fromRoman(roman: String): Int {
     if (roman == "") return -1
     for (letter in roman) if (numbers[letter] == null) return -1
     val romanLength = roman.length
+    var res = 0
     for (i in 0 until romanLength - 1) {
         if (roman[i] !in specialNumbers && listOfNumbers.indexOf(roman[i]) <= listOfNumbers.indexOf(roman[i + 1]))
             return -1
@@ -311,7 +312,6 @@ fun fromRoman(roman: String): Int {
                         / 2)) && listOfNumbers.indexOf(roman[i]) < listOfNumbers.indexOf(roman[i + 1]))
             return -1
     }
-    var res = 0
     for (i in 0 until romanLength - 1) {
         if (listOfNumbers.indexOf(roman[i]) % 2 == 0 && roman[i] != 'M') {
             if (numbers[roman[i + 1]]!!.toInt() == power(10, specialNumbers.indexOf(roman[i]) + 1) ||
