@@ -80,7 +80,7 @@ fun dateStrToDigit(str: String): String {
     if (date.size != 3) return ""
     if (date[1] !in months) return ""
     if (daysInMonth(months.indexOf(date[1]) + 1, date[2].toInt()) < date[0].toInt()) return ""
-    return String.format("%02d.%02d.%01d", date[0].toInt(), months.indexOf(date[1]) + 1, date[2])
+    return String.format("%02d.%02d.%01d", date[0].toInt(), months.indexOf(date[1]) + 1, date[2].toInt())
 }
 
 /**
