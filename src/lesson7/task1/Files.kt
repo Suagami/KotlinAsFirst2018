@@ -60,8 +60,10 @@ fun countSubstrings(inputName: String, substrings: List<String>): Map<String, In
     }
     for (str in substrings) {
         val lowerStr = str.toLowerCase()
-        val matches = Regex(lowerStr).findAll(inputText, 0)
-        res[str] = matches.toList().size
+        var count = 0
+        for (i in 0 until inputText.length)
+            if (inputText.substring(i, inputText.length - 1).startsWith(lowerStr)) count++
+        res[str] = count
     }
     return res
 }
@@ -81,7 +83,60 @@ fun countSubstrings(inputName: String, substrings: List<String>): Map<String, In
  *
  */
 fun sibilants(inputName: String, outputName: String) {
-    TODO()
+    val outputStream = File(outputName).bufferedWriter()
+    for (line in File(inputName).readLines()) {
+        var tempText = Regex("жы").replace(line, "жи")
+        tempText = Regex("жю").replace(tempText, "жу")
+        tempText = Regex("жя").replace(tempText, "жа")
+        tempText = Regex("Жы").replace(tempText, "Жи")
+        tempText = Regex("Жю").replace(tempText, "Жу")
+        tempText = Regex("Жя").replace(tempText, "Жа")
+        tempText = Regex("ЖЫ").replace(tempText, "ЖИ")
+        tempText = Regex("ЖЮ").replace(tempText, "ЖУ")
+        tempText = Regex("ЖЯ").replace(tempText, "ЖА")
+        tempText = Regex("жЫ").replace(tempText, "жИ")
+        tempText = Regex("жЮ").replace(tempText, "жУ")
+        tempText = Regex("жЯ").replace(tempText, "жА")
+        tempText = Regex("щы").replace(tempText, "щи")
+        tempText = Regex("щю").replace(tempText, "щу")
+        tempText = Regex("щя").replace(tempText, "ща")
+        tempText = Regex("Щы").replace(tempText, "Щи")
+        tempText = Regex("Щю").replace(tempText, "Щу")
+        tempText = Regex("Щя").replace(tempText, "Ща")
+        tempText = Regex("ЩЫ").replace(tempText, "ЩИ")
+        tempText = Regex("ЩЮ").replace(tempText, "ЩУ")
+        tempText = Regex("ЩЯ").replace(tempText, "ЩА")
+        tempText = Regex("щЫ").replace(tempText, "щИ")
+        tempText = Regex("щЮ").replace(tempText, "щУ")
+        tempText = Regex("щЯ").replace(tempText, "щА")
+        tempText = Regex("чы").replace(tempText, "чи")
+        tempText = Regex("чю").replace(tempText, "чу")
+        tempText = Regex("чя").replace(tempText, "ча")
+        tempText = Regex("Чы").replace(tempText, "Чи")
+        tempText = Regex("Чю").replace(tempText, "Чу")
+        tempText = Regex("Чя").replace(tempText, "Ча")
+        tempText = Regex("ЧЫ").replace(tempText, "ЧИ")
+        tempText = Regex("ЧЮ").replace(tempText, "ЧУ")
+        tempText = Regex("ЧЯ").replace(tempText, "ЧА")
+        tempText = Regex("чЫ").replace(tempText, "чИ")
+        tempText = Regex("чЮ").replace(tempText, "чУ")
+        tempText = Regex("чЯ").replace(tempText, "чА")
+        tempText = Regex("шы").replace(tempText, "ши")
+        tempText = Regex("шю").replace(tempText, "шу")
+        tempText = Regex("шя").replace(tempText, "ша")
+        tempText = Regex("Шы").replace(tempText, "Ши")
+        tempText = Regex("Шю").replace(tempText, "Шу")
+        tempText = Regex("Шя").replace(tempText, "Ша")
+        tempText = Regex("ШЫ").replace(tempText, "ШИ")
+        tempText = Regex("ШЮ").replace(tempText, "ШУ")
+        tempText = Regex("ШЯ").replace(tempText, "ША")
+        tempText = Regex("шЫ").replace(tempText, "шИ")
+        tempText = Regex("шЮ").replace(tempText, "шУ")
+        tempText = Regex("шЯ").replace(tempText, "шА")
+        outputStream.write(tempText)
+        outputStream.write("\n")
+    }
+    outputStream.close()
 }
 
 /**
@@ -267,109 +322,7 @@ Suspendisse <s>et elit in enim tempus iaculis</s>.
  * (Отступы и переносы строк в примере добавлены для наглядности, при решении задачи их реализовывать не обязательно)
  */
 fun markdownToHtmlSimple(inputName: String, outputName: String) {
-    val outputStream = File(outputName).bufferedWriter(); outputStream.write("<html><body>")
-    var firstTry = false
-    for (line in File(inputName).readLines()) {
-        if (firstTry && line.isEmpty()) outputStream.write("</p><p>")
-        if (!firstTry) {
-            firstTry = true; outputStream.write("<p>")
-        }
-        var i = 0
-        var isBOpened = false; var isIOpened = false; var isSOpened = false
-        var condition = true
-        val tempLength = line.length
-        while (i < tempLength - 3) {
-            when {
-                (line[i] == '*') -> {
-                    when {
-                        line[i + 2] == '*' && line[i + 1] == '*' -> {
-                            while (condition) {
-                                if (tempLength - 1 == i + 2) {
-                                    condition = false
-                                } else if (line[i + 3] == '*') {
-                                    outputStream.write("*"); i++
-                                } else {
-                                    condition = false; continue
-                                }
-                            }
-                            when {
-                                isBOpened && !isIOpened -> {
-                                    outputStream.write("</b><i>"); isBOpened = false; isIOpened = true
-                                }
-                                !isBOpened && isIOpened -> {
-                                    outputStream.write("<b></i>"); isBOpened = true; isIOpened = false
-                                }
-                                isBOpened && isIOpened -> {
-                                    outputStream.write("</b></i>"); isBOpened = false; isIOpened = false
-                                }
-                                else -> {
-                                    outputStream.write("<b><i>"); isBOpened = true; isIOpened = true
-                                }
-                            }
-
-                            i += 2
-                        }
-                        line[i + 1] == '*' -> {
-                            isBOpened = if (isBOpened) {
-                                outputStream.write("</b>"); false
-                            } else {
-                                outputStream.write("<b>"); true
-                            }
-                            i++
-                        }
-                        else -> {
-                            isIOpened = if (isIOpened) {
-                                outputStream.write("</i>"); false
-                            } else {
-                                outputStream.write("<i>"); true
-                            }
-                        }
-                    }
-                }
-                line[i] == '~' && line[i + 1] == '~' -> {
-                    isSOpened = if (isSOpened) {
-                        outputStream.write("</s>"); false
-                    } else {
-                        outputStream.write("<s>"); true
-                    }
-                    i++
-                }
-                else -> outputStream.write(line[i].toString())
-            }
-            i++
-        }
-        var condition2 = true
-        if (tempLength >= 3)
-            if (line[tempLength - 3].toString() + line[tempLength - 2].toString() +
-                    line[tempLength - 1].toString() == "***") {
-                when {
-                    isBOpened && !isIOpened -> {
-                        outputStream.write("*</b>"); isBOpened = false; isIOpened = true
-                    }
-                    !isBOpened && isIOpened -> {
-                        outputStream.write("**</i>"); isBOpened = true; isIOpened = false
-                    }
-                    isBOpened && isIOpened -> {
-                        outputStream.write("</b></i>"); isBOpened = false; isIOpened = false
-                    }
-                    else -> {
-                        outputStream.write("***"); isBOpened = true; isIOpened = true
-                    }
-                }
-                condition2 = false
-            } else outputStream.write(line[tempLength - 3].toString())
-        if (tempLength >= 2 && condition2)
-            if (line[tempLength - 2].toString() + line[tempLength - 1].toString() == "~~" && isSOpened) {
-                outputStream.write("</s>")
-            } else if (line[tempLength - 2].toString() + line[tempLength - 1].toString() == "**" && isBOpened) {
-                outputStream.write("</b>")
-            } else outputStream.write(line[tempLength - 2].toString())
-        if (tempLength >= 1 && condition2) if (line[tempLength - 1] == '*' && isIOpened) {
-            outputStream.write("</i>")
-        } else outputStream.write(line[tempLength - 1].toString())
-    }
-    outputStream.write("</p></body></html>")
-    outputStream.close()
+    TODO()
 }
 
 /**
