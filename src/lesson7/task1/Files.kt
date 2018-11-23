@@ -84,7 +84,8 @@ fun countSubstrings(inputName: String, substrings: List<String>): Map<String, In
  */
 fun sibilants(inputName: String, outputName: String) {
     val outputStream = File(outputName).bufferedWriter()
-    val mapOfChanges = mapOf('ы' to "и",
+    val mapOfChanges = mapOf(
+            'ы' to "и",
             'Ы' to "И",
             'Ю' to "У",
             'ю' to "у",
