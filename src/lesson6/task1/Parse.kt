@@ -258,7 +258,12 @@ fun mostExpensive(description: String): String {
 }
 
 fun findMostExpensiveStuff(stuff: Map<String, Double>): String {
+    if (stuff.isEmpty()) return ""
     var res = ""
+    for ((name, _) in stuff) {
+        res = name
+        break
+    }
     var tempCost = 0.0
     for ((name, cost) in stuff) {
         if (cost > tempCost) {
