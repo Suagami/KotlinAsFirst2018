@@ -176,7 +176,7 @@ fun bestHighJump(jumps: String): Int {
         if (list[2 * i + 1].last() == '+') results.add(list[2 * i].toInt())
     }
     if (results.isEmpty()) return -1
-    return results.sorted().last()
+    return results.max() ?: -1
 }
 
 /**
@@ -243,8 +243,7 @@ fun mostExpensive(description: String): String {
     if (list.size == 1) return list[0].split(" ")[0]
     val mapOfProducts = mutableMapOf<String, Double>()
     for (str in list) {
-        val tempStr =
-                if (str[0] == ' ') str.substring(1, str.length).split(" ") else str.split(" ")
+        val tempStr = str.trim().split(" ")
         if (tempStr.size != 2) return ""
         for (symbol in tempStr[1]) if (!symbol.isDigit() && symbol != '.') return ""
         val tempCostList =
@@ -296,28 +295,32 @@ val numbers = mapOf(
         'D' to 500,
         'M' to 1000
 )
-val listOfNumbers = listOf('I', 'V', 'X', 'L', 'C', 'D', 'M')
-val specialNumbers = listOf('I', 'X', 'C', 'M')
+val listForNumbers = listOf('I', 'V', 'X', 'L', 'C', 'D', 'M')
+val specialDigits = listOf('I', 'X', 'C', 'M')
 fun fromRoman(roman: String): Int {
     if (roman == "") return -1
     for (letter in roman) if (numbers[letter] == null) return -1
     val romanLength = roman.length
     var res = 0
     for (i in 0 until romanLength - 1) {
-        if (roman[i] !in specialNumbers && listOfNumbers.indexOf(roman[i]) <= listOfNumbers.indexOf(roman[i + 1]))
-            return -1
-        if (roman[i] in specialNumbers &&
-                (numbers[roman[i + 1]]!!.toInt() != power(10, specialNumbers.indexOf(roman[i]) + 1)
-                        && numbers[roman[i + 1]]!!.toInt() != (power(10, specialNumbers.indexOf(roman[i]) + 1)
-                        / 2)) && listOfNumbers.indexOf(roman[i]) < listOfNumbers.indexOf(roman[i + 1]))
+        val isDigitSpecial = roman[i] in specialDigits
+        val valueOfNeededSpecialRomanDigit = power(10, specialDigits.indexOf(roman[i]) + 1)
+        val nextRomanDigit = numbers[roman[i + 1]]!!.toInt()
+        val numberOfTempRomanDigit = listForNumbers.indexOf(roman[i])
+        val numberOfNextRomanDigit = listForNumbers.indexOf(roman[i + 1])
+        if (!isDigitSpecial && numberOfTempRomanDigit <= numberOfNextRomanDigit) return -1
+        if (isDigitSpecial && numberOfNextRomanDigit < numberOfNextRomanDigit &&
+                (nextRomanDigit != valueOfNeededSpecialRomanDigit &&
+                        nextRomanDigit != valueOfNeededSpecialRomanDigit / 2))
             return -1
     }
     for (i in 0 until romanLength - 1) {
-        if (listOfNumbers.indexOf(roman[i]) % 2 == 0 && roman[i] != 'M') {
-            if (numbers[roman[i + 1]]!!.toInt() == power(10, specialNumbers.indexOf(roman[i]) + 1) ||
-                    numbers[roman[i + 1]]!!.toInt() == (power(10, specialNumbers.indexOf(roman[i]) + 1) / 2))
-                res -= numbers[roman[i]]!!.toInt() else res += numbers[roman[i]]!!.toInt()
-        } else if (numbers[roman[i]] != null) res += numbers[roman[i]]!!.toInt()
+        val valueOfNeededSpecialRomanDigit = power(10, specialDigits.indexOf(roman[i]) + 1)
+        val nextRomanDigit = numbers[roman[i + 1]]!!.toInt(); val tempRomanDigit = numbers[roman[i]]!!.toInt()
+        val tempIndex = listForNumbers.indexOf(roman[i])
+        if (tempIndex % 2 == 0 && roman[i] != 'M' && nextRomanDigit == valueOfNeededSpecialRomanDigit ||
+                nextRomanDigit == valueOfNeededSpecialRomanDigit / 2) res -= tempRomanDigit
+        else res += tempRomanDigit
     }
     return res + numbers[roman.last()]!!.toInt()
 }
